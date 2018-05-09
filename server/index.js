@@ -4,6 +4,7 @@ const bodyParser = require('body-parser');
 const morgan = require('morgan'); //logging framework
 const router = require('./router');
 const mongoose = require('mongoose');
+const cors = require('cors');
 
 const app = express();
 
@@ -13,6 +14,7 @@ mongoose.Promise = global.Promise;
 
 /* App Setup */
 app.use(morgan('combined'));
+app.use(cors());
 app.use(bodyParser.json({ type: '*/*' }));
 router(app);
 

@@ -33,7 +33,7 @@ exports.signUp = function(req, res, next) {
     });
     user.save(err => {
       if(err) { return next(err); }
-      res.json({ success: tokenForUser(user) });
+      res.json({ token: tokenForUser(user) });
     });  //sasving to mongoDB
   });
 }
