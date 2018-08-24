@@ -20,6 +20,7 @@ fs.readFile('./hello.txt', (err, data) => {
   console.timeEnd('start');
   console.log('coba 1')
   let a = 123
+  console.log('hai')
 })
 
 // const file = fs.readFileSync('./hello.txt');  // sync = synchronous
