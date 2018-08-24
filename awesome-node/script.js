@@ -18,6 +18,7 @@ fs.readFile('./hello.txt', (err, data) => {
   }
   console.log(floor);
   console.timeEnd('start');
+  console.log('coba 1')
 })
 
 // const file = fs.readFileSync('./hello.txt');  // sync = synchronous
