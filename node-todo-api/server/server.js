@@ -61,6 +61,17 @@ app.get('/user', (req, res) => {
     .catch(e => res.status(400).send(e))
 })
 
+app.get('/user/:id', (req, res) => {
+  var userId = req.params.id
+  if (!ObjectID.isValid(userId)) {
+    res.status(404).send('Invalid ID')
+  }
+  User.findById(userId).then(result => {
+    res.send({ result })
+  })
+    .catch(e => res.status(400).send(e))
+})
+
 app.listen(3000, () => {
   console.log('Started on port 3000')
 })
