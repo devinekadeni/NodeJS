@@ -11,7 +11,9 @@ const todos = [{
   text: 'First test todo'
 }, {
   _id: new ObjectID(),
-  text: 'Second test todo'
+  text: 'Second test todo',
+  completed: true,
+  completedAt: 333
 }]
 
 const users = [{
@@ -69,8 +71,6 @@ describe('POST /todos', () => {
       })
   })
 })
-
-
 
 describe('POST /user', () => {
   beforeEach((done) => {
@@ -289,6 +289,64 @@ describe('DELETE /user/:id', () => {
     request(app)
       .delete('/user/asdf123')
       .expect(404)
+      .end(done())
+  })
+})
+
+describe('PATCH /todos/:id', () => {
+  it('should update the todo', (done) => {
+    var hexId = todos[0]._id.toHexString()
+    var text = 'changing this text'
+
+    request(app)
+      .patch(`/todos/${hexId}`)
+      .send({
+        text,
+        completed: true
+      })
+      .expect(200)
+      .expect(res => {
+        expect(res.body.result.text).toBe(text)
+        expect(res.body.result.completed).toBe(true)
+        expect(res.body.result.completedAt).toBeA('number')
+      })
+      .end(done())
+  })
+
+  it('should clear completedAt when todo is not completed', (done) => {
+    var hexId = todos[1]._id.toHexString()
+    var text = 'this is different text'
+
+    request(app)
+      .patch(`/todos/${hexId}`)
+      .send({
+        text,
+        completed: false
+      })
+      .expect(200)
+      .expect(res => {
+        expect(res.body.result.text).toBe(text)
+        expect(res.body.result.completed).toBe(false)
+        expect(res.body.result.completedAt).toNotExist()
+      })
+      .end(done())
+  })
+})
+
+describe('PATCH /user/:id', () => {
+  it('should update the todo', (done) => {
+    var hexId = users[0]._id.toHexString()
+    var email = 'vinsensius@gmail.com'
+
+    request(app)
+      .patch(`/user/${hexId}`)
+      .send({
+        email,
+      })
+      .expect(200)
+      .expect(res => {
+        expect(res.body.result.email).toBe(email)
+      })
       .end(done())
   })
 })
