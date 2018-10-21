@@ -89,6 +89,22 @@ app.delete('/todos/:id', (req, res) => {
   .catch(e => res.status(400).send(e))
 })
 
+app.delete('/user/:id', (req, res) => {
+  var userId = req.params.id
+
+  if (!ObjectID.isValid(userId)) {
+    return res.status(404).send('Invalid ID')
+  }
+
+  User.findByIdAndRemove(userId).then(result => {
+    if (!result) {
+      return res.status(404).send('User not exist')
+    }
+    res.send({ result })
+  })
+    .catch(e => res.status(400).send(e))
+})
+
 app.listen(port, () => {
   console.log(`Started up at port ${port}`)
 })
