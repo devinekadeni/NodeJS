@@ -42,6 +42,13 @@ app.post('/user', (req, res) => {
   })
 })
 
+app.get('/user', (req, res) => {
+  User.find().then(result => {
+    res.send({ result })
+  })
+    .catch(e => res.status(400).send(e))
+})
+
 app.listen(3000, () => {
   console.log('Started on port 3000')
 })
