@@ -73,6 +73,22 @@ app.get('/user/:id', (req, res) => {
     .catch(e => res.status(400).send(e))
 })
 
+app.delete('/todos/:id', (req, res) => {
+  var todoId = req.params.id
+
+  if (!ObjectID.isValid(todoId)) {
+    return res.status(404).send('Invalid ID')
+  }
+
+  Todo.findByIdAndRemove(todoId).then(result => {
+    if (!result) {
+      return res.status(404).send('Todo not exist')
+    }
+    res.send({ result })
+  })
+  .catch(e => res.status(400).send(e))
+})
+
 app.listen(port, () => {
   console.log(`Started up at port ${port}`)
 })
