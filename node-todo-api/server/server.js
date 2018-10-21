@@ -139,7 +139,7 @@ app.patch('/user/:id', (req, res) => {
     return res.status(404).send('Invalid ID')
   }
 
-  Todo.findByIdAndUpdate(id, { $set: body }, { new: true })
+  User.findByIdAndUpdate(id, { $set: body }, { new: true })
     .then(result => {
       if (!result) {
         return res.status(404).send('Id is not exist')
