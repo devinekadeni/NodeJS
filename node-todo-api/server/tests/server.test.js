@@ -1,5 +1,6 @@
 const expect = require('expect')
 const request = require('supertest')
+const { ObjectID } = require('mongodb')
 
 const { app } = require('../server')
 const { Todo } = require('../models/todo')
@@ -106,13 +107,13 @@ describe('POST /user', () => {
   })
 })
 
-const todos = [{
-  text: 'First test todo'
-}, {
-  text: 'Second test todo'
-}]
-
 describe('GET /todos', () => {
+  const todos = [{
+    text: 'First test todo'
+  }, {
+    text: 'Second test todo'
+  }]
+
   beforeEach((done) => {
     Todo.insertMany(todos).then(() => done())
   })
@@ -130,13 +131,13 @@ describe('GET /todos', () => {
   })
 })
 
-const users = [{
-  email: 'devin@gmail.com'
-}, {
-  email: 'ekadeni@gmail.com'
-}]
-
 describe('GET /user', () => {
+  const users = [{
+    email: 'devin@gmail.com'
+  }, {
+    email: 'ekadeni@gmail.com'
+  }]
+
   beforeEach((done) => {
     User.insertMany(users).then(() => done())
   })
@@ -150,6 +151,76 @@ describe('GET /user', () => {
         expect(res.body.result[0].email).toBe(users[0].email)
         expect(res.body.result[1].email).toBe(users[1].email)
       })
+      .end(done())
+  })
+})
+
+describe('GET /todos/:id', () => {
+  it('should return todo doc', (done) => {
+    const todos = [{
+      _id: new ObjectID(),
+      text: 'First test todo'
+    }, {
+      _id: new ObjectID(),
+      text: 'Second test todo'
+    }]
+
+    request(app)
+      .get(`/todos/${todos[0]._id.toHexString()}`)
+      .expect(200)
+      .expect(res => {
+        expect(res.body.result.text).toBe(todos[0].text)
+      })
+      .end(done())
+  })
+
+  it('should return 404 if todo not found', (done) => {
+    const hexId = new ObjectID().toHexString()
+    request(app)
+      .get(`/todos/${hexId}`)
+      .expect(404)
+      .end(done())
+  })
+
+  it('should return 404 for non-object ids', (done) => {
+    request(app)
+      .get('/todos/123abc')
+      .expect(404)
+      .end(done())
+  })
+})
+
+describe('GET /user/:id', () => {
+  it('should return todo doc', (done) => {
+    const users = [{
+      _id: new ObjectID(),
+      email: 'devin@gmail.com'
+    }, {
+      _id: new ObjectID(),
+      email: 'ekadeni@gmail.com'
+    }]
+
+    request(app)
+      .get(`/user/${users[0]._id.toHexString()}`)
+      .expect(200)
+      .expect(res => {
+        expect(res.body.result.text).toBe(users[0].text)
+      })
+      .end(done())
+  })
+
+  it('should return 404 if user not found', (done) => {
+    const hexId = new ObjectID().toHexString()
+    request(app)
+      .get(`/user/${hexId}`)
+      .expect(404)
+      .end(done())
+  })
+
+  it('should return 404 for non-object ids', (done) => {
+    request(app)
+      .get('/user/123abc')
+      .expect(404)
       .end(done())
   })
 })

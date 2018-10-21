@@ -33,7 +33,7 @@ app.get('/todos', (req, res) => {
 app.get('/todos/:id', (req, res) => {
   var todoId = req.params.id
   if (!ObjectID.isValid(todoId)) {
-    res.status(404).send('Invalid ID')
+    return res.status(404).send('Invalid ID')
   }
   Todo.findById(todoId).then(result => {
     res.send({result})
@@ -64,7 +64,7 @@ app.get('/user', (req, res) => {
 app.get('/user/:id', (req, res) => {
   var userId = req.params.id
   if (!ObjectID.isValid(userId)) {
-    res.status(404).send('Invalid ID')
+    return res.status(404).send('Invalid ID')
   }
   User.findById(userId).then(result => {
     res.send({ result })
