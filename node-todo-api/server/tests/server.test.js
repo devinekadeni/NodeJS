@@ -6,7 +6,21 @@ const { app } = require('../server')
 const { Todo } = require('../models/todo')
 const { User } = require('../models/user')
 
+const todos = [{
+  _id: new ObjectID(),
+  text: 'First test todo'
+}, {
+  _id: new ObjectID(),
+  text: 'Second test todo'
+}]
 
+const users = [{
+  _id: new ObjectID(),
+  email: 'devin@gmail.com'
+}, {
+  _id: new ObjectID(),
+  email: 'ekadeni@gmail.com'
+}]
 
 describe('POST /todos', () => {
   beforeEach((done) => {
@@ -108,12 +122,6 @@ describe('POST /user', () => {
 })
 
 describe('GET /todos', () => {
-  const todos = [{
-    text: 'First test todo'
-  }, {
-    text: 'Second test todo'
-  }]
-
   beforeEach((done) => {
     Todo.insertMany(todos).then(() => done())
   })
@@ -132,12 +140,6 @@ describe('GET /todos', () => {
 })
 
 describe('GET /user', () => {
-  const users = [{
-    email: 'devin@gmail.com'
-  }, {
-    email: 'ekadeni@gmail.com'
-  }]
-
   beforeEach((done) => {
     User.insertMany(users).then(() => done())
   })
@@ -157,14 +159,6 @@ describe('GET /user', () => {
 
 describe('GET /todos/:id', () => {
   it('should return todo doc', (done) => {
-    const todos = [{
-      _id: new ObjectID(),
-      text: 'First test todo'
-    }, {
-      _id: new ObjectID(),
-      text: 'Second test todo'
-    }]
-
     request(app)
       .get(`/todos/${todos[0]._id.toHexString()}`)
       .expect(200)
@@ -192,14 +186,6 @@ describe('GET /todos/:id', () => {
 
 describe('GET /user/:id', () => {
   it('should return todo doc', (done) => {
-    const users = [{
-      _id: new ObjectID(),
-      email: 'devin@gmail.com'
-    }, {
-      _id: new ObjectID(),
-      email: 'ekadeni@gmail.com'
-    }]
-
     request(app)
       .get(`/user/${users[0]._id.toHexString()}`)
       .expect(200)
@@ -220,6 +206,88 @@ describe('GET /user/:id', () => {
   it('should return 404 for non-object ids', (done) => {
     request(app)
       .get('/user/123abc')
+      .expect(404)
+      .end(done())
+  })
+})
+
+describe('DELETE /todos/:id', () => {
+
+  it('should remove a todo', (done) => {
+    var hexId = todos[1]._id.toHexString()
+
+    request(app)
+      .delete(`/todos/${hexId}`)
+      .expect(200)
+      .expect(res => {
+        expect(res.body.result._id).toBe(hexId)
+      })
+      .end((err, res) => {
+        if (err) {
+          return done(err)
+        }
+
+        Todo.findById(hexId).then(res => {
+          expect(res).toNotExist()
+          done()
+        })
+        .catch(e => done(e))
+      })
+  })
+
+  it('should return 404 if todo not found', (done) => {
+    const hexId = new ObjectID().toHexString()
+
+    request(app)
+      .delete(`/todos/${hexId}`)
+      .expect(404)
+      .end(done())
+  })
+
+  it('should return 404 if object id is invalid', (done) => {
+    request(app)
+      .delete('/todos/asdf123')
+      .expect(404)
+      .end(done())
+  })
+})
+
+describe('DELETE /user/:id', () => {
+
+  it('should remove a user', (done) => {
+    var hexId = users[1]._id.toHexString()
+
+    request(app)
+      .delete(`/user/${hexId}`)
+      .expect(200)
+      .expect(res => {
+        expect(res.body.result._id).toBe(hexId)
+      })
+      .end((err, res) => {
+        if (err) {
+          return done(err)
+        }
+
+        User.findById(hexId).then(res => {
+          expect(res).toNotExist()
+          done()
+        })
+          .catch(e => done(e))
+      })
+  })
+
+  it('should return 404 if user not found', (done) => {
+    const hexId = new ObjectID().toHexString()
+
+    request(app)
+      .delete(`/user/${hexId}`)
+      .expect(404)
+      .end(done())
+  })
+
+  it('should return 404 if object id is invalid', (done) => {
+    request(app)
+      .delete('/user/asdf123')
       .expect(404)
       .end(done())
   })
