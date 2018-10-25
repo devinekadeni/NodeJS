@@ -14,6 +14,7 @@ const port = process.env.PORT
 
 app.use(bodyParser.json())
 
+/* TODOS API */
 app.post('/todos', (req, res) => {
   var todo = new Todo({
     text: req.body.text
@@ -45,37 +46,6 @@ app.get('/todos/:id', (req, res) => {
   .catch(e => res.status(400).send(e))
 })
 
-app.post('/user', (req, res) => {
-  var user = new User({
-    email: req.body.email
-  })
-
-  user.save().then(result => {
-    res.send(result)
-  })
-  .catch(e => {
-    res.status(400).send(e)
-  })
-})
-
-app.get('/user', (req, res) => {
-  User.find().then(result => {
-    res.send({ result })
-  })
-    .catch(e => res.status(400).send(e))
-})
-
-app.get('/user/:id', (req, res) => {
-  var userId = req.params.id
-  if (!ObjectID.isValid(userId)) {
-    return res.status(404).send('Invalid ID')
-  }
-  User.findById(userId).then(result => {
-    res.send({ result })
-  })
-    .catch(e => res.status(400).send(e))
-})
-
 app.delete('/todos/:id', (req, res) => {
   var todoId = req.params.id
 
@@ -90,22 +60,6 @@ app.delete('/todos/:id', (req, res) => {
     res.send({ result })
   })
   .catch(e => res.status(400).send(e))
-})
-
-app.delete('/user/:id', (req, res) => {
-  var userId = req.params.id
-
-  if (!ObjectID.isValid(userId)) {
-    return res.status(404).send('Invalid ID')
-  }
-
-  User.findByIdAndRemove(userId).then(result => {
-    if (!result) {
-      return res.status(404).send('User not exist')
-    }
-    res.send({ result })
-  })
-    .catch(e => res.status(400).send(e))
 })
 
 app.patch('/todos/:id', (req, res) => {
@@ -133,6 +87,57 @@ app.patch('/todos/:id', (req, res) => {
     .catch(e => res.status(400).send(e))
 })
 
+/* USERS API */
+app.post('/users', (req, res) => {
+  var body = _.pick(req.body, ['email', 'password'])
+  var user = new User(body)
+
+  user.save().then(() => {
+    // res.send(result)
+    return user.generateAuthToken()
+  })
+  .then(token => {
+    res.header('x-auth', token).send(user)
+  })
+  .catch(e => {
+    res.status(400).send(e)
+  })
+})
+
+app.get('/user', (req, res) => {
+  User.find().then(result => {
+    res.send({ result })
+  })
+    .catch(e => res.status(400).send(e))
+})
+
+app.get('/user/:id', (req, res) => {
+  var userId = req.params.id
+  if (!ObjectID.isValid(userId)) {
+    return res.status(404).send('Invalid ID')
+  }
+  User.findById(userId).then(result => {
+    res.send({ result })
+  })
+    .catch(e => res.status(400).send(e))
+})
+
+app.delete('/user/:id', (req, res) => {
+  var userId = req.params.id
+
+  if (!ObjectID.isValid(userId)) {
+    return res.status(404).send('Invalid ID')
+  }
+
+  User.findByIdAndRemove(userId).then(result => {
+    if (!result) {
+      return res.status(404).send('User not exist')
+    }
+    res.send({ result })
+  })
+    .catch(e => res.status(400).send(e))
+})
+
 app.patch('/user/:id', (req, res) => {
   var id = req.params.id
   var body = _.pick(req.body, ['email'])
@@ -150,6 +155,7 @@ app.patch('/user/:id', (req, res) => {
     })
     .catch(e => res.status(400).send(e))
 })
+
 
 app.listen(port, () => {
   console.log(`Started up at port ${port}`)
