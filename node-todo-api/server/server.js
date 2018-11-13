@@ -15,7 +15,11 @@ const port = process.env.PORT
 
 app.use(bodyParser.json())
 
-/* TODOS API */
+/**
+|--------------------------------------------------
+| THIS IS LIST OF TODOS API
+|--------------------------------------------------
+*/
 app.post('/todos', (req, res) => {
   var todo = new Todo({
     text: req.body.text
@@ -65,7 +69,7 @@ app.delete('/todos/:id', (req, res) => {
 
 app.patch('/todos/:id', (req, res) => {
   var id = req.params.id
-  var body = _.pick(req.body, ['text', 'completed'])
+  var body = _.pick(req.body, ['text', 'completed'])  // only take the specified key
 
   if (!ObjectID.isValid(id)) {
     return res.status(404).send('Invalid ID')
@@ -78,7 +82,7 @@ app.patch('/todos/:id', (req, res) => {
     body.completedAt = null
   }
 
-  Todo.findByIdAndUpdate(id, {$set: body}, {new: true})
+  Todo.findByIdAndUpdate(id, {$set: body}, {new: true}) // new = display the updated data for the promise result
     .then(result => {
       if (!result) {
         return res.status(404).send('Id is not exist')
@@ -88,9 +92,13 @@ app.patch('/todos/:id', (req, res) => {
     .catch(e => res.status(400).send(e))
 })
 
-/* USERS API */
+/**
+|--------------------------------------------------
+| THIS IS LIST OF USER API 
+|--------------------------------------------------
+*/
 app.post('/users', (req, res) => {
-  var body = _.pick(req.body, ['email', 'password'])
+  var body = _.pick(req.body, ['email', 'password'])  // only take the specified key
   var user = new User(body)
 
   user.save().then(() => {

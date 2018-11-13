@@ -72,9 +72,14 @@ UserSchema.statics.findByToken = function (token) {
   })
 }
 
+/**
+ * This will execute as middleware
+ * Every time UserSchema.save() this will be executed
+ */
 UserSchema.pre('save', function (next) {
   var user = this
 
+  /* if field password changed */
   if (user.isModified('password')) {
     bcrypt.genSalt(10, (err, salt) => {
       bcrypt.hash(user.password, salt, (err, hash) => {
